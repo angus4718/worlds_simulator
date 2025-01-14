@@ -1,6 +1,6 @@
 # Tournament Simulation README
 
-This repository contains a Python script for simulating a custom tournament structure. The program uses team data and a Swiss-system format to simulate matches, determine standings, and identify the tournament champion. Below is a detailed explanation of the project, its setup, and usage.
+This repository contains a Python script, `worlds_simulator.py`, for simulating a custom tournament structure. The program uses team data from a spreadsheet and a Swiss-system format to simulate matches, determine standings, and identify the tournament champion. Below is a detailed explanation of the project, its setup, and usage. The format of the League of Legends 2024 World Championship was used.
 
 ---
 
@@ -8,12 +8,13 @@ This repository contains a Python script for simulating a custom tournament stru
 
 1. [Overview](#overview)
 2. [Features](#features)
-3. [Setup](#setup)
-4. [How It Works](#how-it-works)
-5. [Configuration](#configuration)
-6. [Running the Simulation](#running-the-simulation)
-7. [Outputs](#outputs)
-8. [Customization](#customization)
+3. [Spreadsheet Format](#spreadsheet-format)
+4. [Setup](#setup)
+5. [How It Works](#how-it-works)
+6. [Configuration](#configuration)
+7. [Running the Simulation](#running-the-simulation)
+8. [Outputs](#outputs)
+9. [Customization](#customization)
 
 ---
 
@@ -21,22 +22,60 @@ This repository contains a Python script for simulating a custom tournament stru
 
 The script simulates a competitive tournament with the following phases:
 
-1. **Play-in Stage**: Matches between teams to determine which advance to the next stage.
-2. **Swiss Stage**: Teams are divided into pools and play multiple rounds to determine the top-performing teams.
-3. **Knockout Stage**: Top 8 teams from the Swiss stage compete in a single-elimination bracket to determine the tournament champion.
+1. **Play-in Stage**: Matches between lower-seeded teams to determine which advance to the next stage.
+2. **Swiss Stage**: Teams are divided into pools and play multiple rounds of matches in the Swiss-system format to determine the top-performing teams.
+3. **Knockout Stage**: The top 8 teams from the Swiss stage compete in a single-elimination bracket to determine the tournament champion.
 
-The script uses randomization and team power ratings to simulate match outcomes while allowing for luck as a factor.
+The simulation uses team power ratings, randomization, and a configurable luck factor to simulate realistic match outcomes.
 
 ---
 
 ## Features
 
-- **Team Power Ratings**: Determines the probability of winning a match.
-- **Luck Factor**: Adds an element of randomness to the simulations.
-- **Swiss-System Tournament**: Implements the Swiss format to rank teams over multiple rounds.
+- **Team Power Ratings**: Determines the probability of a team winning any given match.
+- **Luck Factor**: Adds randomness to the simulation, making results more dynamic.
+- **Swiss-System Tournament**: Implements the Swiss-system format to rank teams over multiple rounds.
 - **Knockout Stage**: Simulates quarterfinals, semifinals, and finals.
-- **Repeatable Simulations**: Perform multiple runs to analyze outcomes and trends.
-- **Customizable Parameters**: Adjust team data, luck factor, and simulation loops.
+- **Repeatable Simulations**: Perform multiple simulation runs to analyze trends.
+- **Customizable Parameters**: Adjust team data, luck factor, simulation loops, and match formats.
+
+---
+
+## Spreadsheet Format
+
+The script requires a spreadsheet file (`settings.xlsx`) with the following structure in the `Teams` sheet:
+
+| Team | Region | Seed | Power |
+|------|--------|------|-------|
+| HLE  | LCK    | 1    | 95    |
+| GEN  | LCK    | 2    | 95    |
+| DK   | LCK    | 3    | 85    |
+| T1   | LCK    | 4    | 85    |
+| BLG  | LPL    | 1    | 95    |
+| TES  | LPL    | 2    | 85    |
+| LNG  | LPL    | 3    | 75    |
+| WBG  | LPL    | 4    | 75    |
+| G2   | LEC    | 1    | 75    |
+| FNC  | LEC    | 2    | 65    |
+| MDK  | LEC    | 3    | 60    |
+| FLY  | LCS    | 1    | 75    |
+| TL   | LCS    | 2    | 65    |
+| 100  | LCS    | 3    | 60    |
+| PSG  | PCS    | 1    | 70    |
+| SHG  | PCS    | 2    | 60    |
+| GAM  | VCS    | 1    | 60    |
+| VKE  | VCS    | 2    | 50    |
+| PNG  | CBLOL  | 1    | 40    |
+| R7   | LATAM  | 1    | 40    |
+
+### Column Descriptions:
+
+- **Team**: The name or abbreviation of the team.
+- **Region**: The region the team represents (e.g., LCK, LPL, LEC, etc.).
+- **Seed**: The seed of the team in its region.
+- **Power**: A numerical value representing the team's strength. Higher values indicate stronger teams.
+
+The script uses the `Power` column to calculate win probabilities for matches.
 
 ---
 
@@ -47,41 +86,31 @@ The script uses randomization and team power ratings to simulate match outcomes 
 Ensure you have the following installed:
 
 - Python 3.7+
-- `pandas`
-- `openpyxl`
+- Required Python libraries:
+  - `pandas`
 
 ### Installation
 
-1. Clone this repository or copy the script to your local machine.
-2. Install the required Python libraries:
+1. Clone this repository or copy the script (`worlds_simulator.py`) to your local machine.
+2. Install the required Python library:
 
    ```bash
-   pip install pandas openpyxl
+   pip install pandas
    ```
 
-3. Prepare an Excel file (`settings.xlsx`) with the following structure:
-
-   **Sheet: `Teams`**
-   | Team   | Power |
-   |--------|-------|
-   | LCK1   | 95    |
-   | LPL1   | 92    |
-   | ...    | ...   |
-
-   - `Team`: The team name (must match the team names used in the script).
-   - `Power`: A numerical value representing the team's strength.
+3. Prepare the spreadsheet (`settings.xlsx`) using the format described above. Make sure the file is located in the same directory as the script.
 
 ---
 
 ## How It Works
 
-1. **Match Simulation**: The `Match` class simulates a single match between two teams using their power ratings and the luck factor to determine the winner.
-2. **Stages**:
-   - **Play-in Stage**: Teams play a series of matches to qualify for the Swiss stage.
-   - **Swiss Stage**: Teams are grouped into pools and play several rounds, earning wins and losses.
-   - **Knockout Stage**: The top 8 teams from the Swiss stage compete in a bracket to determine the champion.
-3. **Repeated Simulations**: The script runs the tournament multiple times (`LOOP` variable) to gather statistics on team performance.
-4. **Outputs**: The results include the number of times each team became the champion and how often they reached the top 8.
+1. **Match Simulation**: The `Match` class simulates a single match between two teams. The probability of winning is based on the `Power` values of both teams and the configurable `luck` factor.
+2. **Tournament Stages**:
+   - **Play-in Stage**: Lower-seeded teams play a series of matches to qualify for the next stage.
+   - **Swiss Stage**: Teams are grouped into pools and play several rounds. Each round adjusts win/loss records.
+   - **Knockout Stage**: The top 8 teams from the Swiss stage compete in a single-elimination bracket to determine the champion.
+3. **Repeated Simulations**: The script runs the tournament multiple times (`LOOP` variable) to analyze trends and gather statistics.
+4. **Outputs**: Results include team performance statistics such as champion count and top 8 appearances.
 
 ---
 
@@ -89,28 +118,27 @@ Ensure you have the following installed:
 
 You can customize the following parameters in the script:
 
-1. **Luck Factor** (`luck`): Controls the randomness in match outcomes. Values closer to `0` make match results more random, while higher values favor stronger teams.
+1. **Luck Factor** (`luck`): Controls randomness in match outcomes. Higher values favor stronger teams, while lower values increase randomness.
    ```python
    luck = 0.2
    ```
 
-2. **Number of Simulations** (`LOOP`): Determines how many times the tournament is simulated.
+2. **Number of Simulations** (`LOOP`): Determines how many times the tournament will be simulated.
    ```python
    LOOP = 10
    ```
 
-3. **Team Data**: Modify the `settings.xlsx` file to include your desired teams and their power ratings.
-
-4. **Play-in Matches**: Update the `play_in_matches` list to define the initial matches in the play-in stage.
+3. **Play-in Matches**: Update the `play_in_matches` list to define the initial matches in the play-in stage.
    ```python
    play_in_matches = [
        ('MDK', 'VKE', 3),  # Group A Round 1 Match 1
        ('PSG', 'PNG', 3),  # Group A Round 1 Match 2
-       ...
+       ('GAM', 'SHG', 3),  # Group B Round 1 Match 1
+       ('100', 'R7', 3),   # Group B Round 1 Match 2
    ]
    ```
 
-5. **Swiss Pools**: Update the pools in the Swiss stage to include the correct teams.
+4. **Swiss Pools**: Modify the pools of teams for the Swiss stage.
    ```python
    pool1 = ['LCK1', 'LPL1', 'LEC1', 'LCS1']
    ```
@@ -146,27 +174,27 @@ The script prints the following information:
 
 ```
 Swiss Pools:
-Pool1: ['LCK1', 'LPL1', 'LEC1', 'LCS1']
-Pool2: ['LCK2', 'LPL2', 'LEC2', 'LCS2']
+Pool1: ['HLE', 'BLG', 'G2', 'FLY']
+Pool2: ['GEN', 'TES', 'FNC', 'TL']
 ...
 
 Swiss Standings After Round 1:
     Team  swiss_wins  swiss_losses
-0   LCK1           1             0
-1   LPL1           0             1
+0   HLE           1             0
+1   BLG           0             1
 ...
 
 Top 8 Teams:
-['LCK1', 'LPL1', 'LEC1', 'LCS1', 'LCK2', 'LPL2', 'LEC2', 'LCS2']
+['HLE', 'BLG', 'TES', 'GEN', 'G2', 'FLY', 'FNC', 'TL']
 
 Champion count:
-LCK1: 6 times
-LPL1: 3 times
+HLE: 6 times
+BLG: 3 times
 ...
 
 Top 8 count:
-LCK1: 10 times
-LPL1: 10 times
+HLE: 10 times
+BLG: 10 times
 ...
 ```
 
@@ -175,15 +203,15 @@ LPL1: 10 times
 ## Customization
 
 - **Match Formats**: Adjust the `bo` (best-of) parameter in the match definitions to change the format (e.g., BO1, BO3, BO5).
-- **Swiss Rounds**: Modify the Swiss stage to include more or fewer rounds by changing the number of iterations in the loop.
+- **Swiss Rounds**: Modify the Swiss stage to include more or fewer rounds by adjusting the number of iterations in the loop.
 - **Additional Stages**: Add new stages or modify existing ones to fit your tournament structure.
 
 ---
 
 ## Limitations
 
-- All teams must be included in the `settings.xlsx` file with valid power ratings.
-- The Swiss stage requires exactly 16 teams divided into 4 pools.
+- All teams must be included in the `settings.xlsx` file with valid `Team`, `Region`, `Seed`, and `Power` values.
+- The Swiss stage supports 16 teams divided into 4 pools. Adjustments may be needed for different team counts.
 
 ---
 
